@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="member">
+<!-- 로그인 확인 메서드 -->
+<select id="checkLogin" parameterType="map" resultType="Integer">
+	select count(*)
+	from member
+	where mem_id = #{mem_id} and mem_pass = #{mem_pass}
+</select>
+
+<select id="getAllBoardList" resultType="BoardVO">
+ 	select *
+ 	from board
+</select>
+
+<insert id="insertBoard" parameterType="map">
+	INSERT INTO board
+	VALUES (BOARD_SEQ.NEXTVAL,#{mem_id},#{board_title},SYSDATE,'1')
+</insert>
+
+<!--///////////////////////////////////////////////////////////////-->
+
+<select id="getPostTotalCnt" resultType="Integer">
+	select count(*)
+	from post  
+</select>
+
+
+<select id = "getPostList" parameterType="map" resultType="PostVO">
+	select 
+		post_nm,
+		post_pnm,
+		board_nm,
+		mem_id,
+		post_title,
+		lpad(' ' , (level-1)*4)||post_cnt as "post_cnt",
+		post_dt,
+		post_yn,
+		post_gnm
+	FROM (SELECT ROWNUM rn, post.*
+     	  FROM post
+     	  ORDER BY post_dt)         
+	WHERE rn between (#{page}-1)*#{pageSize}+1 AND #{page}*#{pageSize}
+	AND board_nm = #{board_nm}	
+	START WITH post_pnm IS NULL
+	CONNECT by PRIOR post_nm=post_pnm
+</select>
+
+<!-- ///////////////////////////////////////////////////////////////////////////////////////////////////////-->
+
+<select id = "getCmtList" parameterType="Integer" resultType="CmtVO">
+	SELECT *
+	FROM cmt
+	WHERE post_nm = #{post_nm}
+    ORDER BY cmt_dt desc
+</select>
+
+
+
+<select id = "getPostDetail" parameterType="map" resultType="PostVO">
+	SELECT *		
+	FROM post
+	WHERE post_nm = #{post_nm}
+	AND board_nm =#{board_nm}
+</select>
+
+<insert id= "insertCmt" parameterType="CmtVO">
+	INSERT INTO CMT(CMT_NM, POST_NM, MEM_ID, CMT_CNT, CMT_DT, CMT_YN) 
+	VALUES(CMT_SEQ.NEXTVAL, #{post_nm}, #{mem_id}, #{cmt_cnt},SYSDATE, '1')
+</insert>
+
+<insert id="insertPost" parameterType="PostVO">
+	INSERT INTO POST(POST_NM, BOARD_NM, POST_GNM, MEM_ID, POST_TITLE, POST_CNT, POST_DT, POST_YN) 
+	VALUES(POST_SEQ.NEXTVAL, #{board_nm},POST_SEQ.CURRVAL,#{mem_id},#{post_title},#{post_cnt},SYSDATE,'1')
+	
+	<selectKey keyProperty="post_nm" resultType="integer" order="AFTER">
+    		SELECT POST_SEQ.CURRVAL FROM DUAL
+  	</selectKey>   
+</insert>
+
+
+
+
+</mapper>
