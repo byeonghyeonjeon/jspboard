@@ -55,7 +55,7 @@ public class CmtAddServlet extends HttpServlet {
 			e1.printStackTrace();
 		}
 		
-		response.sendRedirect("/noticeBoard/postDetail?board_nm="+board_nm+"&post_nm="+post_nm);		
+		response.sendRedirect(request.getContextPath()+"/postDetail?board_nm="+board_nm+"&post_nm="+post_nm);		
 		
 	}
 

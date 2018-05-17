@@ -62,7 +62,7 @@ public class PostAddServlet extends HttpServlet {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		response.sendRedirect("/noticeBoard/postDetail?board_nm="+board_nm+"&post_nm="+result_num );
+		response.sendRedirect(request.getContextPath()+"/postDetail?board_nm="+board_nm+"&post_nm="+result_num );
 	}
 
 }
